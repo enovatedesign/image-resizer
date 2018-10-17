@@ -68,9 +68,17 @@ class Resize extends Component
 
             // Check to see if we should make a copy of our original image first?
             if ($settings->nonDestructiveResize) {
-                $folderPath = 'originals/';
 
-                // Create a new folder 'originals'
+                $folderPath = 'originals/';
+                list($targetFolderId, $targetFilename) = AssetsHelper::parseFileLocation($asset->newLocation);
+                if ($targetFolderId) {
+                    $targetFolder = Craft::$app->getAssets()->getFolderById((int)$targetFolderId);
+                    if ($targetFolder) {
+                        $folderPath = $targetFolder->path . $folderPath;
+                    }
+                }
+
+                // Create a new folder 'originals' if necessary
                 if (!$volume->folderExists($folderPath)) {
                     $volume->createDir($folderPath);
                 }
@@ -81,6 +89,7 @@ class Resize extends Component
                 if (!$volume->fileExists($filePath)) {
                     $stream = @fopen($path, 'rb');
                     $volume->createFileByStream($filePath, $stream, []);
+                    Craft::$app->getAssetIndexer()->indexFile($volume, $filePath);
                 }
             }
 
