@@ -1,6 +1,7 @@
 <?php
-
 namespace verbb\imageresizer\services;
+
+use verbb\imageresizer\ImageResizer;
 
 use Craft;
 use craft\base\Component;
@@ -10,7 +11,6 @@ use craft\base\VolumeInterface;
 use craft\elements\Asset;
 use craft\helpers\Assets as AssetsHelper;
 use craft\helpers\Image as ImageHelper;
-use verbb\imageresizer\ImageResizer;
 
 class Resize extends Component
 {
@@ -89,6 +89,8 @@ class Resize extends Component
                 if (!$volume->fileExists($filePath)) {
                     $stream = @fopen($path, 'rb');
                     $volume->createFileByStream($filePath, $stream, []);
+
+                    // Spin up asset indexer
                     Craft::$app->getAssetIndexer()->indexFile($volume, $filePath);
                 }
             }
@@ -126,9 +128,9 @@ class Resize extends Component
                         ImageResizer::$plugin->service->saveAs($image, $path); // Its a smaller file - properly save
 
                         // Create remote file
-                        if (!$volume instanceof LocalVolumeInterface) {
-                            $this->_createRemoteFile($volume, $filename, $path);
-                        }
+                        // if (!$volume instanceof LocalVolumeInterface) {
+                        //     $this->_createRemoteFile($volume, $filename, $path);
+                        // }
 
                         clearstatcache();
 
@@ -149,9 +151,9 @@ class Resize extends Component
                     ImageResizer::$plugin->service->saveAs($image, $path);
 
                     // Create remote file
-                    if (!$volume instanceof LocalVolumeInterface) {
-                        $this->_createRemoteFile($volume, $filename, $path);
-                    }
+                    // if (!$volume instanceof LocalVolumeInterface) {
+                    //     $this->_createRemoteFile($volume, $filename, $path);
+                    // }
 
                     clearstatcache();
 
